@@ -26,36 +26,38 @@ class Evolution(nn.Module):
 
         self.iter = 3
         if model == "gcn":
-            self.adj = get_adj_mat(self.adj_num, self.node_num)
-            self.adj = normalize_adj(self.adj, type="DAD").float().to(self.device)
+            adj = get_adj_mat(self.adj_num, self.node_num)
+            adj = normalize_adj(adj, type="DAD").float().to(self.device)
             for i in range(self.iter):
                 evolve_gcn = GCN(36, 128)
                 self.__setattr__('evolve_gcn' + str(i), evolve_gcn)
         elif model == "rnn":
-            self.adj = None
+            adj = None
             for i in range(self.iter):
                 evolve_gcn = Rnn(36, 128)
                 self.__setattr__('evolve_gcn' + str(i), evolve_gcn)
         elif model == "gcn_rnn":
-            self.adj = get_adj_mat(self.adj_num, self.node_num)
-            self.adj = normalize_adj(self.adj, type="DAD").float().to(self.device)
+            adj = get_adj_mat(self.adj_num, self.node_num)
+            adj = normalize_adj(adj, type="DAD").float()
             for i in range(self.iter):
                 evolve_gcn = GCN_RNN(36, 128)
                 self.__setattr__('evolve_gcn' + str(i), evolve_gcn)
+                
+            
         elif model == "transformer":
-            self.adj = None
+            sadj = None
             for i in range(self.iter):
                 evolve_gcn = Transformer(36, 512, num_heads=8,
                                          dim_feedforward=2048, drop_rate=0.0, if_resi=True, block_nums=4)
                 self.__setattr__('evolve_gcn' + str(i), evolve_gcn)
         elif model == "transformer_rnn":
-            self.adj = None
+            adj = None
             for i in range(self.iter):
                 evolve_gcn = Transformer_RNN(36, 512, num_heads=8,
                                              dim_feedforward=2048, drop_rate=0.1, if_resi=True, block_nums=4)
                 self.__setattr__('evolve_gcn' + str(i), evolve_gcn)
         else:
-            self.adj = get_adj_ind(self.adj_num, self.node_num, self.device)
+            adj = get_adj_ind(self.adj_num, self.node_num, self.device)
             for i in range(self.iter):
                 evolve_gcn = Snake(state_dim=128, feature_dim=36, conv_type='dgrid')
                 self.__setattr__('evolve_gcn' + str(i), evolve_gcn)
@@ -65,6 +67,9 @@ class Evolution(nn.Module):
                 m.weight.data.normal_(0.0, 0.01)
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
+                    
+        self.register_buffer("adj", adj)
+        
 
     @staticmethod
     def get_boundary_proposal(input=None, seg_preds=None, switch="gt"):

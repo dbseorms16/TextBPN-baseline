@@ -20,8 +20,9 @@ from cfglib.option import BaseOptions
 from util.visualize import visualize_network_output
 from util.summary import LogSummary
 from util.shedule import FixLR
-# import multiprocessing
-# multiprocessing.set_start_method("spawn", force=True)
+import multiprocessing
+multiprocessing.set_start_method("spawn", force=True)
+# from torch.nn.parallel import DistributedDataParallel as DDP
 
 lr = None
 train_step = 0

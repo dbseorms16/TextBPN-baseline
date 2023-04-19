@@ -111,6 +111,7 @@ def inference(model, test_loader, output_dir):
         else:
             fname = meta['image_id'][idx].replace('jpg', 'txt')
             write_to_file(contours, os.path.join(output_dir, fname))
+        torch.cuda.empty_cache()
 
 
 def main(vis_dir_path):
